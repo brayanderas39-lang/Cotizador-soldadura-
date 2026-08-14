@@ -1,0 +1,49 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17202a"><link rel="manifest" href="manifest.webmanifest">
+<title>Cotizador de Soldadura</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+header{background:#17202a;color:#fff;padding:22px 16px;text-align:center}h1{margin:0;font-size:25px}header p{margin:7px 0 0;color:#d7dde2}
+main{max-width:850px;margin:auto;padding:14px}.card{background:#fff;border:1px solid #dfe4e8;border-radius:16px;padding:17px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+h2{font-size:18px;margin:0 0 13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}input{width:100%;padding:12px;border:1px solid #cbd3d9;border-radius:10px;font-size:16px;background:#fff}
+.item{display:grid;grid-template-columns:1fr 115px 90px 42px;gap:8px;align-items:end;margin-bottom:9px}.other-item{display:grid;grid-template-columns:1fr 115px 42px;gap:8px;align-items:end;margin-bottom:9px}
+button{border:0;border-radius:10px;padding:11px 13px;font-size:15px;font-weight:700;cursor:pointer}.add{background:#eaf2f8;color:#21618c}.remove{background:#fdecea;color:#b03a2e;padding:11px}.dark{background:#17202a;color:#fff}
+.total{display:flex;justify-content:space-between;border-top:1px solid #e1e5e8;padding-top:12px;margin-top:12px;font-weight:700}.big{font-size:30px;color:#d35400}.muted{font-size:13px;color:#68737d}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}.item{grid-template-columns:1fr 100px 75px 42px}.other-item{grid-template-columns:1fr 100px 42px}}
+@media print{header{background:#fff;color:#000;border-bottom:2px solid #000}.card{box-shadow:none}.actions,.add,.remove,button{display:none}body{background:#fff}}
+</style></head><body>
+<header><h1>🔧 Cotizador de Soldadura</h1><p>Materiales · Mano de obra · Gastos · Ganancia</p></header><main>
+<section class="card"><h2>1. Datos del trabajo</h2><div class="grid">
+<div><label>Cliente</label><input id="cliente" placeholder="Nombre del cliente"></div>
+<div><label>Trabajo</label><input id="trabajo" placeholder="Ej. Portón corredizo"></div></div></section>
+<section class="card"><h2>2. Materiales</h2><p class="muted">Precio por unidad × cantidad.</p><div id="materials"></div>
+<button type="button" class="add" id="addMaterial">＋ Agregar material</button>
+<div class="total"><span>Subtotal materiales</span><span id="matTotal">$0.00</span></div></section>
+<section class="card"><h2>3. Mano de obra</h2><div class="grid">
+<div><label>Días de trabajo</label><input id="days" type="number" min="0" step="0.5" value="0"></div>
+<div><label>Número de trabajadores</label><input id="workers" type="number" min="1" step="1" value="1"></div>
+<div><label>Pago por trabajador / día ($)</label><input id="dailyRate" type="number" min="0" step="0.01" value="0"></div></div>
+<div class="total"><span>Subtotal mano de obra</span><span id="laborTotal">$0.00</span></div></section>
+<section class="card"><h2>4. Otros gastos</h2><p class="muted">Transporte, electricidad, pintura, instalación, etc.</p><div id="others"></div>
+<button type="button" class="add" id="addOther">＋ Agregar gasto</button>
+<div class="total"><span>Subtotal otros gastos</span><span id="otherTotal">$0.00</span></div></section>
+<section class="card"><h2>5. Ganancia</h2><div class="grid">
+<div><label>Ganancia (%)</label><input id="profit" type="number" min="0" step="1" value="20"></div>
+<div><label>Ganancia en dinero</label><input id="profitAmount" readonly value="$0.00"></div></div></section>
+<section class="card"><h2>6. Resultado</h2>
+<div class="total"><span>Costo del trabajo</span><span id="costTotal">$0.00</span></div>
+<div class="total"><span>Ganancia</span><span id="profitDisplay">$0.00</span></div>
+<div class="total"><span>PRECIO AL CLIENTE</span><span class="big" id="saleTotal">$0.00</span></div></section>
+<div class="actions"><button type="button" class="dark" id="print">🖨️ Imprimir / Guardar PDF</button>
+<button type="button" class="add" id="newQuote">↻ Nueva cotización</button></div></main>
+<script>
+"use strict";const $=id=>document.getElementById(id),money=n=>"$"+Number(n||0).toFixed(2);
+function materialRow(){const d=document.createElement("div");d.className="item";d.innerHTML='<div><label>Material</label><input class="desc" placeholder="Ej. Tubo 2x2"></div><div><label>Precio ($)</label><input class="amount" type="number" min="0" step="0.01" value="0"></div><div><label>Cantidad</label><input class="qty" type="number" min="0" step="0.01" value="1"></div><button type="button" class="remove">×</button>';d.querySelector(".remove").onclick=()=>{d.remove();calc()};d.querySelectorAll("input").forEach(x=>x.oninput=calc);$("materials").appendChild(d)}
+function otherRow(){const d=document.createElement("div");d.className="other-item";d.innerHTML='<div><label>Gasto</label><input class="desc" placeholder="Ej. Transporte"></div><div><label>Monto ($)</label><input class="amount" type="number" min="0" step="0.01" value="0"></div><button type="button" class="remove">×</button>';d.querySelector(".remove").onclick=()=>{d.remove();calc()};d.querySelectorAll("input").forEach(x=>x.oninput=calc);$("others").appendChild(d)}
+function calc(){let m=0,o=0;document.querySelectorAll("#materials .item").forEach(r=>m+=(+r.querySelector(".amount").value||0)*(+r.querySelector(".qty").value||0));document.querySelectorAll("#others .other-item").forEach(r=>o+=(+r.querySelector(".amount").value||0));let l=(+$("days").value||0)*(+$("workers").value||0)*(+$("dailyRate").value||0),c=m+l+o,g=c*(+$("profit").value||0)/100;$("matTotal").textContent=money(m);$("laborTotal").textContent=money(l);$("otherTotal").textContent=money(o);$("costTotal").textContent=money(c);$("profitAmount").value=money(g);$("profitDisplay").textContent=money(g);$("saleTotal").textContent=money(c+g)}
+$("addMaterial").onclick=materialRow;$("addOther").onclick=otherRow;$("print").onclick=()=>window.print();$("newQuote").onclick=()=>{if(confirm("¿Borrar esta cotización y empezar otra?")){location.reload()}};
+["days","workers","dailyRate","profit"].forEach(id=>$(id).oninput=calc);materialRow();otherRow();calc();
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"));
+</script></body></html>

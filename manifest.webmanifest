@@ -1,0 +1,10 @@
+{
+  "name": "Cotizador de Soldadura",
+  "short_name": "Cotizador",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f7",
+  "theme_color": "#17202a",
+  "lang": "es"
+}
