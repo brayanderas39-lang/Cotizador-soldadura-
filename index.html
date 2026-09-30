@@ -6,246 +6,593 @@
 <meta name="theme-color" content="#17202a">
 <link rel="manifest" href="manifest.webmanifest">
 <title>Cotizador de Soldadura</title>
-
 <style>
 *{box-sizing:border-box}
-
-body{
-margin:0;
-background:#f3f5f7;
-color:#17202a;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif
-}
-
-header{
-background:#17202a;
-color:#fff;
-padding:22px 16px;
-text-align:center
-}
-
+body{margin:0;background:#f3f5f7;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+header{background:#17202a;color:#fff;padding:22px 16px;text-align:center}
 h1{margin:0;font-size:25px}
+header p{margin:7px 0 0;color:#d7dde2}
+main{max-width:850px;margin:auto;padding:14px}
+.card{background:#fff;border:1px solid #dfe4e8;border-radius:16px;padding:17px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+h2{font-size:18px;margin:0 0 13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}
+input{width:100%;padding:12px;border:1px solid #cbd3d9;border-radius:10px;font-size:16px;background:#fff}
+.item{display:grid;grid-template-columns:1fr 115px 90px 42px;gap:8px;align-items:end;margin-bottom:9px}
+.other-item{display:grid;grid-template-columns:1fr 115px 42px;gap:8px;align-items:end;margin-bottom:9px}
+button{border:0;border-radius:10px;padding:11px 13px;font-size:15px;font-weight:700;cursor:pointer}
+.add{background:#eaf2f8;color:#21618c}
+.remove{background:#fdecea;color:#b03a2e;padding:11px}
+.dark{background:#17202a;color:#fff}
+.gold{background:#d4a017;color:#17202a}
+.secondary{background:#e5e9ed;color:#17202a}
+.total{display:flex;justify-content:space-between;border-top:1px solid #e1e5e8;padding-top:12px;margin-top:12px;font-weight:700}
+.big{font-size:30px;color:#d35400}
+.muted{font-size:13px;color:#68737d}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.home{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:24px 14px}
+.home-box{width:100%;max-width:650px;text-align:center}
+.home-box h2{font-size:28px;margin:0 0 8px}
+.home-box p{color:#68737d;margin:0 0 26px;font-size:16px}
+.home-actions{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.home-btn{min-height:150px;padding:24px;border-radius:18px;border:1px solid #dfe4e8;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.06);font-size:21px;font-weight:800;color:#17202a}
+.home-btn span{display:block;font-size:44px;margin-bottom:12px}
+.home-btn.primary{background:#17202a;color:#fff;border-color:#17202a}
+.saved-card{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.saved-info{min-width:0}
+.saved-info h3{margin:0 0 5px;font-size:18px}
+.saved-info p{margin:2px 0;color:#68737d;font-size:13px}
+.saved-price{font-size:20px;font-weight:800;color:#d35400;white-space:nowrap}
+.saved-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.empty{text-align:center;color:#68737d;padding:35px 10px}
+.top-actions{display:flex;gap:10px;margin-bottom:14px}
+.top-actions button{flex:1}
+.hidden{display:none!important}
+@media(max-width:620px){
+.grid{grid-template-columns:1fr}
+.item{grid-template-columns:1fr 100px 75px 42px}
+.other-item{grid-template-columns:1fr 100px 42px}
+.home-actions{grid-template-columns:1fr}
+.home-btn{min-height:125px}
+.saved-card{align-items:flex-start;flex-direction:column}
+.saved-actions{justify-content:flex-start}
+.saved-price{margin-top:4px}
+}
+@media print{
+header,.actions,.top-actions,#homeView,#savedView,.save-area,.saved-actions{display:none!important}
+.card{box-shadow:none}
+.add,.remove,button{display:none!important}
+body{background:#fff}
+#calculatorView{display:block!important}
+main{max-width:none;padding:0}
+.card{border:0;border-radius:0}
+}
+</style>
+</head>
 
-header p{
-margin:7px 0 0;
-color:#d7dde2
+<body>
+
+<header>
+<h1>🔧 Cotizador de Soldadura</h1>
+<p>Materiales · Mano de obra · Gastos · Ganancia</p>
+</header>
+
+<main>
+
+<section id="homeView" class="home">
+<div class="home-box">
+<h2>¿Qué deseas hacer?</h2>
+<p>Administra tus cotizaciones desde un solo lugar.</p>
+
+<div class="home-actions">
+<button type="button" class="home-btn primary" id="homeNewQuote">
+<span>➕</span>Nueva cotización
+</button>
+
+<button type="button" class="home-btn" id="homeSavedQuotes">
+<span>📁</span>Cotizaciones guardadas
+</button>
+</div>
+</div>
+</section>
+
+<section id="savedView" class="hidden">
+
+<div class="top-actions">
+<button type="button" class="secondary" id="savedBack">← Inicio</button>
+<button type="button" class="dark" id="savedNew">＋ Nueva cotización</button>
+</div>
+
+<div class="card">
+<h2>📁 Cotizaciones guardadas</h2>
+<p class="muted">Aquí puedes abrir, editar, generar el PDF o borrar una cotización.</p>
+<div id="savedList"></div>
+</div>
+
+</section>
+
+<section id="calculatorView" class="hidden">
+
+<div class="top-actions">
+<button type="button" class="secondary" id="calcBack">← Inicio</button>
+<button type="button" class="dark" id="calcNew">＋ Nueva cotización</button>
+</div>
+
+<section class="card">
+<h2>1. Datos del trabajo</h2>
+
+<div class="grid">
+<div>
+<label>Cliente</label>
+<input id="cliente" placeholder="Nombre del cliente">
+</div>
+
+<div>
+<label>Trabajo</label>
+<input id="trabajo" placeholder="Ej. Portón corredizo">
+</div>
+</div>
+</section>
+
+<section class="card">
+<h2>2. Materiales</h2>
+<p class="muted">Precio por unidad × cantidad.</p>
+
+<div id="materials"></div>
+
+<button type="button" class="add" id="addMaterial">
+＋ Agregar material
+</button>
+
+<div class="total">
+<span>Subtotal materiales</span>
+<span id="matTotal">$0.00</span>
+</div>
+</section>
+
+<section class="card">
+<h2>3. Mano de obra</h2>
+
+<div class="grid">
+
+<div>
+<label>Días de trabajo</label>
+<input id="days" type="number" min="0" step="0.5" value="0">
+</div>
+
+<div>
+<label>Número de trabajadores</label>
+<input id="workers" type="number" min="1" step="1" value="1">
+</div>
+
+<div>
+<label>Pago por trabajador / día ($)</label>
+<input id="dailyRate" type="number" min="0" step="0.01" value="0">
+</div>
+
+</div>
+
+<div class="total">
+<span>Subtotal mano de obra</span>
+<span id="laborTotal">$0.00</span>
+</div>
+</section>
+
+<section class="card">
+<h2>4. Otros gastos</h2>
+<p class="muted">Transporte, electricidad, pintura, instalación, etc.</p>
+
+<div id="others"></div>
+
+<button type="button" class="add" id="addOther">
+＋ Agregar gasto
+</button>
+
+<div class="total">
+<span>Subtotal otros gastos</span>
+<span id="otherTotal">$0.00</span>
+</div>
+</section>
+
+<section class="card">
+<h2>5. Ganancia</h2>
+
+<div class="grid">
+
+<div>
+<label>Ganancia (%)</label>
+<input id="profit" type="number" min="0" step="1" value="20">
+</div>
+
+<div>
+<label>Ganancia en dinero</label>
+<input id="profitAmount" readonly value="$0.00">
+</div>
+
+</div>
+</section>
+
+<section class="card">
+<h2>6. Resultado</h2>
+
+<div class="total">
+<span>Costo del trabajo</span>
+<span id="costTotal">$0.00</span>
+</div>
+
+<div class="total">
+<span>Ganancia</span>
+<span id="profitDisplay">$0.00</span>
+</div>
+
+<div class="total">
+<span>PRECIO AL CLIENTE</span>
+<span class="big" id="saleTotal">$0.00</span>
+</div>
+
+</section>
+
+<div class="card save-area">
+
+<div class="actions">
+
+<button type="button" class="gold" id="saveQuote">
+💾 Guardar cotización
+</button>
+
+<button type="button" class="dark" id="print">
+🖨️ Imprimir / Guardar PDF
+</button>
+
+</div>
+</div>
+
+</section>
+
+</main>
+
+<script>
+"use strict";
+
+const $=id=>document.getElementById(id);
+const money=n=>"$"+Number(n||0).toFixed(2);
+
+let editingId=null;
+
+function showView(view){
+
+["homeView","savedView","calculatorView"]
+.forEach(id=>$(id).classList.add("hidden"));
+
+$(view).classList.remove("hidden");
+
+window.scrollTo(0,0);
+
+if(view==="savedView") renderSavedQuotes();
+
 }
 
-main{
-max-width:850px;
-margin:auto;
-padding:14px
+function materialRow(data){
+
+const d=document.createElement("div");
+
+d.className="item";
+
+d.innerHTML=`
+<div>
+<label>Material</label>
+<input class="desc" placeholder="Ej. Tubo 2x2">
+</div>
+
+<div>
+<label>Precio ($)</label>
+<input class="amount" type="number" min="0" step="0.01" value="0">
+</div>
+
+<div>
+<label>Cantidad</label>
+<input class="qty" type="number" min="0" step="0.01" value="1">
+</div>
+
+<button type="button" class="remove">×</button>
+`;
+
+if(data){
+
+d.querySelector(".desc").value=data.desc||"";
+d.querySelector(".amount").value=data.amount??0;
+d.querySelector(".qty").value=data.qty??1;
+
 }
 
-.card{
-background:#fff;
-border:1px solid #dfe4e8;
-border-radius:16px;
-padding:17px;
-margin-bottom:14px;
-box-shadow:0 2px 8px rgba(0,0,0,.04)
+d.querySelector(".remove").onclick=()=>{
+d.remove();
+calc();
+};
+
+d.querySelectorAll("input").forEach(x=>x.oninput=calc);
+
+$("materials").appendChild(d);
+
 }
 
-h2{
-font-size:18px;
-margin:0 0 13px
+function otherRow(data){
+
+const d=document.createElement("div");
+
+d.className="other-item";
+
+d.innerHTML=`
+<div>
+<label>Gasto</label>
+<input class="desc" placeholder="Ej. Transporte">
+</div>
+
+<div>
+<label>Monto ($)</label>
+<input class="amount" type="number" min="0" step="0.01" value="0">
+</div>
+
+<button type="button" class="remove">×</button>
+`;
+
+if(data){
+
+d.querySelector(".desc").value=data.desc||"";
+d.querySelector(".amount").value=data.amount??0;
+
 }
 
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px
+d.querySelector(".remove").onclick=()=>{
+d.remove();
+calc();
+};
+
+d.querySelectorAll("input").forEach(x=>x.oninput=calc);
+
+$("others").appendChild(d);
+
 }
 
-label{
-display:block;
-font-size:13px;
-font-weight:700;
-margin-bottom:6px
+function calc(){
+
+let m=0;
+let o=0;
+
+document.querySelectorAll("#materials .item").forEach(r=>{
+
+m+=(+r.querySelector(".amount").value||0)*
+(+r.querySelector(".qty").value||0);
+
+});
+
+document.querySelectorAll("#others .other-item").forEach(r=>{
+
+o+=(+r.querySelector(".amount").value||0);
+
+});
+
+let l=
+(+$("days").value||0)*
+(+$("workers").value||0)*
+(+$("dailyRate").value||0);
+
+let c=m+l+o;
+
+let g=
+c*(+$("profit").value||0)/100;
+
+$("matTotal").textContent=money(m);
+$("laborTotal").textContent=money(l);
+$("otherTotal").textContent=money(o);
+$("costTotal").textContent=money(c);
+$("profitAmount").value=money(g);
+$("profitDisplay").textContent=money(g);
+$("saleTotal").textContent=money(c+g);
+
 }
 
-input{
-width:100%;
-padding:12px;
-border:1px solid #cbd3d9;
-border-radius:10px;
-font-size:16px;
-background:#fff
+function clearForm(){
+
+editingId=null;
+
+$("cliente").value="";
+$("trabajo").value="";
+$("days").value=0;
+$("workers").value=1;
+$("dailyRate").value=0;
+$("profit").value=20;
+
+$("materials").innerHTML="";
+$("others").innerHTML="";
+
+materialRow();
+otherRow();
+
+calc();
+
 }
 
-.item{
-display:grid;
-grid-template-columns:1fr 115px 90px 42px;
-gap:8px;
-align-items:end;
-margin-bottom:9px
+function getQuoteData(){
+
+const materials=[];
+const others=[];
+
+document.querySelectorAll("#materials .item").forEach(r=>{
+
+materials.push({
+
+desc:r.querySelector(".desc").value,
+
+amount:+r.querySelector(".amount").value||0,
+
+qty:+r.querySelector(".qty").value||0
+
+});
+
+});
+
+document.querySelectorAll("#others .other-item").forEach(r=>{
+
+others.push({
+
+desc:r.querySelector(".desc").value,
+
+amount:+r.querySelector(".amount").value||0
+
+});
+
+});
+
+return{
+
+cliente:$("cliente").value.trim(),
+
+trabajo:$("trabajo").value.trim(),
+
+days:+$("days").value||0,
+
+workers:+$("workers").value||1,
+
+dailyRate:+$("dailyRate").value||0,
+
+profit:+$("profit").value||0,
+
+materials,
+
+others,
+
+total:$("saleTotal").textContent
+
+};
+
 }
 
-.other-item{
-display:grid;
-grid-template-columns:1fr 115px 42px;
-gap:8px;
-align-items:end;
-margin-bottom:9px
+function saveQuote(){
+
+const data=getQuoteData();
+
+if(!data.cliente&&!data.trabajo){
+
+alert("Agrega al menos el nombre del cliente o el trabajo antes de guardar.");
+
+return;
+
 }
 
-button{
-border:0;
-border-radius:10px;
-padding:11px 13px;
-font-size:15px;
-font-weight:700;
-cursor:pointer
+const quotes=
+JSON.parse(localStorage.getItem("cotizaciones")||"[]");
+
+const now=new Date().toISOString();
+
+if(editingId){
+
+const i=quotes.findIndex(q=>q.id===editingId);
+
+if(i>=0){
+
+quotes[i]={
+...quotes[i],
+...data,
+updatedAt:now
+};
+
 }
 
-.add{
-background:#eaf2f8;
-color:#21618c
+}else{
+
+const next=
+Number(localStorage.getItem("cotizacionNumero")||0)+1;
+
+localStorage.setItem(
+"cotizacionNumero",
+String(next)
+);
+
+quotes.unshift({
+
+id:"q_"+Date.now(),
+
+number:next,
+
+...data,
+
+createdAt:now,
+
+updatedAt:now
+
+});
+
 }
 
-.remove{
-background:#fdecea;
-color:#b03a2e;
-padding:11px
+localStorage.setItem(
+"cotizaciones",
+JSON.stringify(quotes)
+);
+
+alert("Cotización guardada correctamente.");
+
+showView("savedView");
+
 }
 
-.dark{
-background:#17202a;
-color:#fff
+function loadQuote(id){
+
+const q=
+JSON.parse(localStorage.getItem("cotizaciones")||"[]")
+.find(x=>x.id===id);
+
+if(!q)return;
+
+editingId=q.id;
+
+$("cliente").value=q.cliente||"";
+$("trabajo").value=q.trabajo||"";
+$("days").value=q.days??0;
+$("workers").value=q.workers??1;
+$("dailyRate").value=q.dailyRate??0;
+$("profit").value=q.profit??20;
+
+$("materials").innerHTML="";
+$("others").innerHTML="";
+
+(q.materials||[]).forEach(materialRow);
+(q.others||[]).forEach(otherRow);
+
+if(!q.materials||!q.materials.length)
+materialRow();
+
+if(!q.others||!q.others.length)
+otherRow();
+
+calc();
+
+showView("calculatorView");
+
 }
 
-.gold{
-background:#d4a017;
-color:#17202a
+function deleteQuote(id){
+
+const quotes=
+JSON.parse(localStorage.getItem("cotizaciones")||"[]");
+
+const q=quotes.find(x=>x.id===id);
+
+if(!q)return;
+
+if(confirm("¿Borrar esta cotización? Esta acción no se puede deshacer.")){
+
+localStorage.setItem(
+"cotizaciones",
+JSON.stringify(
+quotes.filter(x=>x.id!==id)
+)
+);
+
+renderSavedQuotes();
+
 }
 
-.secondary{
-background:#e5e9ed;
-color:#17202a
 }
 
-.total{
-display:flex;
-justify-content:space-between;
-border-top:1px solid #e1e5e8;
-padding-top:12px;
-margin-top:12px;
-font-weight:700
-}
-
-.big{
-font-size:30px;
-color:#d35400
-}
-
-.muted{
-font-size:13px;
-color:#68737d
-}
-
-.actions{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px
-}
-
-.home{
-min-height:70vh;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:24px 14px
-}
-
-.home-box{
-width:100%;
-max-width:650px;
-text-align:center
-}
-
-.home-box h2{
-font-size:28px;
-margin:0 0 8px
-}
-
-.home-box p{
-color:#68737d;
-margin:0 0 26px;
-font-size:16px
-}
-
-.home-actions{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:16px
-}
-
-.home-btn{
-min-height:150px;
-padding:24px;
-border-radius:18px;
-border:1px solid #dfe4e8;
-background:#fff;
-box-shadow:0 4px 14px rgba(0,0,0,.06);
-font-size:21px;
-font-weight:800;
-color:#17202a
-}
-
-.home-btn span{
-display:block;
-font-size:44px;
-margin-bottom:12px
-}
-
-.home-btn.primary{
-background:#17202a;
-color:#fff;
-border-color:#17202a
-}
-
-.saved-card{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:12px
-}
-
-.saved-info{
-min-width:0
-}
-
-.saved-info h3{
-margin:0 0 5px;
-font-size:18px
-}
-
-.saved-info p{
-margin:2px 0;
-color:#68737d;
-font-size:13px
-}
-
-.saved-price{
-font-size:20px;
-font-weight:800;
-color:#d35400;
-white-space:nowrap
-}
-
-.saved-actions{
-display:flex;
-gap:7px;
-flex-wrap:wrap;
-justify-content:flex-end
-}
-
-.empty{
-text-align:center;
-color:#68737d;
-padding:35px 10px
-}
-
-.top-actions{
-display:flex;
-gap
+function formatDate(value
